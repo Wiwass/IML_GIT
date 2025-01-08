@@ -14,4 +14,4 @@ result=ifft2(result);
 if(mean(mean(mean(result)))==mean(mean(mean(X))))
     print("ok");
 end
-imshow(result);
+%imshow(result);

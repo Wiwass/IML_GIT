@@ -2,6 +2,7 @@ function output=fft_criptation(transform,scale,p,q)
     img_size=size(transform);
     output=zeros(img_size(1)*scale,img_size(2)*scale,3);
     target=zeros(img_size(1)*scale,img_size(2)*scale);
+    
     for x=1:1:img_size(1)
         for y=1:1:img_size(2)
             vector=generate_coordinates(x,y,p,q,target);
@@ -10,7 +11,7 @@ function output=fft_criptation(transform,scale,p,q)
 
         end
     end
-
+   
     for x=1:1:img_size(1)*scale
         for y=1:1:img_size(2)*scale
             if target(x,y)==0
@@ -26,6 +27,7 @@ function output=fft_criptation(transform,scale,p,q)
 
                 target(x,y)=1;
                 output(x,y,:)=transform(vector(1),vector(2),:);
+                
             end
         end
     end
