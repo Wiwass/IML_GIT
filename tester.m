@@ -1,6 +1,7 @@
 clear all;
+tic
 
-x=imread("transform.jpg");
+x=imread("lena.jpg");
 X=fft2(x);
 
 p=997;
@@ -9,9 +10,11 @@ q=809;
 temp=fft_criptation(X,4,p,q);
 result=fft_decriptation(temp,4,p,q);
 
-result=ifft2(result);
+result=ifft2(X);
 
-if(mean(mean(mean(result)))==mean(mean(mean(X))))
-    print("ok");
+
+if(x==result)
+    disp("ok");
 end
 imshow(result);
+toc

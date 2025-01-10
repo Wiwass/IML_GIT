@@ -1,4 +1,5 @@
 function output=fft_decriptation(cripted_img,scale,p,q)
+tic
     img_size=size(cripted_img);
     temp=zeros(img_size(1)/scale,img_size(2)/scale,3);
     target=zeros(img_size(1),img_size(2));
@@ -12,6 +13,7 @@ function output=fft_decriptation(cripted_img,scale,p,q)
         end
     end
 
+    %output=temp;
     for x=1:1:img_size(1)
         for y=1:1:img_size(2)
             if target(x,y)==0
@@ -30,7 +32,8 @@ function output=fft_decriptation(cripted_img,scale,p,q)
             end
         end
     end
-
+    
+    %non_ci_posso_credere=mean(mean(mean(output-temp)));
     %output=zeros(img_size(1)/4,img_size(2)/4,3);
     output=temp;
     for x=1:1:img_size(1)/4
@@ -38,6 +41,7 @@ function output=fft_decriptation(cripted_img,scale,p,q)
             %output(x,y,:)=mode(temp(x,y,:));
         end
     end
+toc
 end
 
 
@@ -61,4 +65,5 @@ function vector=generate_coordinates(x,y,p,q,target)
     vector(1)=X;
     vector(2)=Y;
     end
+
 end
