@@ -1,20 +1,17 @@
 function output=fft_decriptation(cripted_img,scale,p,q)
-tic
     img_size=size(cripted_img);
-    temp=zeros(img_size(1)/scale,img_size(2)/scale,3);
-    counter=ones(img_size(1)/scale,img_size(2)/scale);
+    temp=zeros(img_size(1)/scale,img_size(2)/scale);
     target=zeros(img_size(1),img_size(2));
 
     for x=1:1:img_size(1)/scale
         for y=1:1:img_size(2)/scale
             vector=generate_coordinates(x,y,p,q,target);
             target(vector(1),vector(2))=1;
-            temp(x,y,:)=cripted_img(vector(1),vector(2),:);
+            temp(x,y)=cripted_img(vector(1),vector(2));
 
         end
     end
 
-    %output=temp;
     for x=1:1:img_size(1)
         for y=1:1:img_size(2)
             if target(x,y)==0
@@ -27,21 +24,19 @@ tic
                 if(vector(2)==0)
                    vector(2)=vector(2)+1;
                 end
-                counter(vector(1),vector(2))=counter(vector(1),vector(2))+1;
-                target(x,y)=1;
-                temp(vector(1),vector(2),:,counter(vector(1),vector(2)))=cripted_img(x,y,:);
+
+                target(x,y)=target(x,y)+1;
+                temp(vector(1),vector(2),target(x,y))=cripted_img(x,y);
             end
         end
     end
-    
 
-    output=temp;
+    output=zeros(img_size(1)/4,img_size(2)/4);
     for x=1:1:img_size(1)/4
         for y=1:1:img_size(2)/4
-            output(x,y,:)=mode(temp(x,y,:,:));
+            output(x,y)=mode(temp(x,y,:));
         end
     end
-toc
 end
 
 
@@ -65,5 +60,4 @@ function vector=generate_coordinates(x,y,p,q,target)
     vector(1)=X;
     vector(2)=Y;
     end
-
 end

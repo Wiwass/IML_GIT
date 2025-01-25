@@ -1,0 +1,13 @@
+load stereo_sample.mat
+filename='stereo_sample.mat';
+
+step=1/Fs;
+ 
+[y,Fs] = audioread(filename);
+
+left=zeros(size(y(1)));
+right=zeros(size(y(1)));
+
+show(bar(y));
+
+
