@@ -25,8 +25,7 @@ function return_value=DecBinToPrime(img)
         
    end
 
-   return_value=nthprime(bin2dec(temp));
-
+   return_value=int32(nthprime(bin2dec(temp)));
 
 end
 
