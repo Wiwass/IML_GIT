@@ -1,8 +1,8 @@
 clear all
 disp('Server ready, waiting for connections...')
-S = tcpserver("localhost", 23456);
-
-
+load("main_server_port.mat");
+load("main_server_ip.mat");
+S = tcpserver(main_server_ip, main_server_port);
 S.ByteOrder = 'little-endian';
 
 S.ConnectionChangedFcn = @server_function;
@@ -64,24 +64,34 @@ if S.Connected
                 write(S,1,'int8');
                 return;
             end
-            write(C,0,'int8'); %sending port number for the client
-            write(C,port,'int8');
-            write(C,strlenth(db_key),'int8');
-            write(C,db_key,'string'); 
+            write(C,0,'int8'); %sending port number to the second server
+            write(C,port,'int32');
+            write(C,lenth(db_key),'int8');
+            write(C,db_key,'string');
+            write(C,scale,'int8');
+            write(C,p,'int32');
+            write(C,q,'int32');
+            write(C,e,'int8');
 
             %%
 
-            %data transmission
+            %data transmission to the client
             write(S,p,'int32');
             write(S,q,'int32');
             write(S,e,'int8');
             write(S,ip_length,'int8');
             write(S,ip);
-            write(S,port,'int8');
+            write(S,port,'int32');
 
 
         case 1 % key upload
-
+            key_length=read(S,'int8');
+            key=read(S,key_length,'string');
+            ip=S.ClientAddress;
+            port=S.ClientPort;
+            add_key_to_main_DB(key,ip,port);
+            disp('Key uploaded');
+            write(S,1,'int8');
 
     end
             

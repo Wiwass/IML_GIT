@@ -19,8 +19,7 @@ function return_value=DecBinToPrime(img)
    for l=2:1:int_length
         j=randi(y,1);
         i=randi(x,1);
-        k=randi(8,1);
-            temp(position) = out(j,i,k);
+            temp(position) = mean(out(j,i,:));
             position=position+1;
         
    end
