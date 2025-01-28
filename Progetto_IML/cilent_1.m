@@ -87,8 +87,8 @@ end
 cripted_img = complex(realstream, imagstream);
 
 output_img=fft_decriptation(cripted_img,scale,p,q);
-output_img=uint8(output_img);
 
 img=ifft2(output_img);
+img=uint8(img);
 toc
 imshow(img);
