@@ -13,17 +13,17 @@ function return_value=DecBinToPrime(img)
         end
    end
 
-   int_length=32;
-   temp=ones(int_length);
+   int_length=16;
+   temp=ones(1,int_length);
    position=1;
    for l=2:1:int_length
         j=randi(y,1);
         i=randi(x,1);
-            temp(position) = mean(out(j,i,:));
+            temp(position) = mode(out(j,i,:));
             position=position+1;
         
    end
-
+   temp=char(temp+'0');
    return_value=int32(nthprime(bin2dec(temp)));
 
 end

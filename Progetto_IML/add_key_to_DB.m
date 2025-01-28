@@ -4,18 +4,21 @@ function add_key_to_DB(filename)
     load("key_limit.mat");
     load("main_server_port.mat");
     load("main_server_ip.mat");
+    load("second_server_ip.mat");
+    load("second_server_port.mat");
 
     for i=1:length(DB)
         % If the filename is found in 'DB' do nothing
         if DB(i).filename==filename
-            dips("the key already exists");
-            return;
+            %disp("the key already exists");
+            %return;
         end
     end
     % If the filename is not found in 'DB' add it to 'DB'
-    key = matlab.net.base64encode(filename);
-    limitWidth(key, key_limit);
-    
+    key =char(matlab.net.base64encode(filename));
+    if(length(key)>key_limit)
+        key = key(1:50);
+    end
 
     %% connection to the main DB
     connectionSuccessful = 0;
@@ -35,10 +38,15 @@ function add_key_to_DB(filename)
         end
     end
     %% upload della chiave al server
-    write(C,1,"int8");
-    write(C,length(key),"int8");
-    write(C,key,"string");
-    done=read(C,"int8");
+    write(C,1,"uint8");
+    write(C,strlength(key),"uint8");
+    write(C,uint8(double(key)));
+
+    write(C,second_server_port,"uint32");
+    write(C,length(char(second_server_ip)),"uint8");
+    write(C,uint8(double(char(second_server_ip))));
+
+    done=read(C,1,"uint8");
     if done==1 % if the key was uploaded correctly we can update our DB
         disp('Key uploaded');
         DB(end+1).filename=filename;
@@ -48,8 +56,4 @@ function add_key_to_DB(filename)
         disp("upload fail");
     end
 
-end
-
-function s = limitWidth(s, n)
-    s = extractBefore(s, min(n, s.strlength()) + 1);
 end
