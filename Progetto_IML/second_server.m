@@ -1,7 +1,6 @@
 clear all
-close all
 
-global x_size y_size cripted_img;
+global x_size y_size cripted_img offset;
 disp('Server ready, waiting for connections...')
 
 load("second_server_port.mat");
@@ -29,7 +28,7 @@ if S.Connected
     scale=read(S,1,'uint8');
     p=read(S,1,'int32');
     q=read(S,1,'int32');
-    e=read(S,1,'uint8');
+
 
     filename=get_filename(im_id);
     cd assets\immages;

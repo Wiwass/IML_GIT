@@ -1,7 +1,18 @@
 function img=lavalamp()
     cd assets\;
-    S = dir('*.jpg');
-    k = randi([1,length(S)]);
-    img=imread(S(k).name);
+    if ~isempty(webcamlist)
+        cam=webcam(1);
+        img=snapshot(cam);
+        pause(0.2);
+        img2=snapshot(cam);
+        img=img-img2;
+        imshow(img);
+    else
+        
+        S = dir('*.jpg');
+        k = randi([1,length(S)]);
+        img=imread(S(k).name);
+    end
     cd ..;
+
 end

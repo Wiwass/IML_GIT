@@ -20,31 +20,37 @@ if S.Connected
     switch whattodo
         case 0  % key request
 
-            p=LavaLampToPrime2();
-            q=LavaLampToPrime2();
+            img=lavalamp();
+            p=DecBinToPrime(img);
 
-            
-            [n,e,d]=RSA_key_gen(p,q);
+            img=lavalamp();
+            q=DecBinToPrime(img);
+
+            n=int32(0);
+            e=int32(0);
+            d=int32(0);
+            int32([n,e,d])=RSA_key_gen(p,q);
+
             write(S,[n,e],"int32");
-            n=double(n);
-            e=double(e);
-            d=double(d);
             
             crip_key_length=read(S,1,"uint8");
-            crip_serch_key=read(S,crip_key_length,"uint32");
+            dataread=read(S,crip_key_length,"uint32");
             crip_offset=read(S,1,"int32");
 
             offset=RSA_dec(crip_offset,d,n);
+            crip_serch_key=char(dataread);
             serch_key=RSA_dec(crip_serch_key,d,n);
-            serch_key=char(serch_key);
 
             [db_key,ip,server_port]=serch_key_in_main_DB(serch_key);
 
             ip_length=length(ip);
 
-            % prime generation for the data transmission
-            p=LavaLampToPrime2();
-            q=LavaLampToPrime2();
+            % data generation for arp request
+            img=lavalamp();     
+            p=DecBinToPrime(img);
+
+            img=lavalamp();
+            q=DecBinToPrime(img);
 
             %port generation
             load('host.mat');

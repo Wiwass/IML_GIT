@@ -5,12 +5,12 @@ serch_key = 'U2NyZWVuc2hvdCAyMDIzLTA3LTI3IDEwMjAzMS5wbmc=';
 load("main_server_port.mat");
 load("main_server_ip.mat");
 offset=randi([10,99]);
-offset=13;
+offset=1;
 
 connectionSuccessful = 0;
 while connectionSuccessful == 0    
     try
-        C = tcpclient(main_server_ip, main_server_port,"Timeout",60);
+        C = tcpclient(main_server_ip, main_server_port,"Timeout",50);
         C.ByteOrder = 'little-endian';
         connectionSuccessful = 1;
         % If connection to server fails, the instructions following "catch
@@ -57,7 +57,6 @@ clear C
 
 connectionSuccessful = 0;
 disp("connecting to external server");
-pause(5);
 while connectionSuccessful == 0    
     try
         C2 = tcpclient(ip, port);
