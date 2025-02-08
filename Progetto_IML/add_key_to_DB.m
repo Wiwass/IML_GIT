@@ -20,7 +20,7 @@ function add_key_to_DB(filename)
         key = key(1:50);
     end
 
-    %% connection to the main DB
+    %% connection to the main server
     connectionSuccessful = 0;
     while connectionSuccessful == 0    
         try
@@ -37,7 +37,7 @@ function add_key_to_DB(filename)
             end
         end
     end
-    %% upload della chiave al server
+    %% upload of the key to the main server
 
     write(C,1,'uint8'); % key upload request
 
