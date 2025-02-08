@@ -23,6 +23,10 @@ if S.Connected
             p=LavaLampToPrime1();
             q=LavaLampToPrime1();
 
+            while p==q
+                q=LavaLampToPrime1();
+            end
+
             
             [n,e,d]=RSA_key_gen(p,q);
             write(S,[n,e],"int32");
@@ -46,6 +50,10 @@ if S.Connected
             p=LavaLampToPrime1();
             q=LavaLampToPrime1();
 
+            while p==q
+                q=LavaLampToPrime1();
+            end
+
             %port generation
             load('host.mat');
             port=49152+mod(host*p*q,16383);
@@ -55,8 +63,10 @@ if S.Connected
 
             connectionSuccessful2 = 0;
 
-            if db_key=='nf'
-                write(S,0,"uint8")
+            if size(char(db_key))==size(char('nf'))
+                if char(db_key)==char('nf')
+                    write(S,0,"uint8");
+                end
             end
 
             while connectionSuccessful2 == 0    
@@ -120,7 +130,7 @@ if S.Connected
             cript_port=read(S,1,"uint32");
 
             cript_ip_length=read(S,1,'uint8');
-            cript_ip=read(S,cript_ip_length,'uint8');
+            cript_ip=read(S,cript_ip_length,'uint32');
 
             key=RSA_dec(crip_serch_key,d,n);
             key=char(key);
@@ -136,10 +146,7 @@ if S.Connected
             write(S,1,'uint8');
 
     end
-            
-
-
-           
+     
     
 else
     disp('Client disconnected')

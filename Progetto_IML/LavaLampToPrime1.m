@@ -23,9 +23,9 @@ function prime=LavaLampToPrime1()
         prod=prod*sum;
     end
     
-    prod=mod(prod,6542); %lavorando nel caso 2^16
-    if prod<1000
-        prod=prod+1000;
+    prod=mod(prod,360); %limitazioni per colpa di matlab
+    if prod<180
+        prod=prod+180;
     end
     prod=uint16(prod);
     prime=nthprime(prod);

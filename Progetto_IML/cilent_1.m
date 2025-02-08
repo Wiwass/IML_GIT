@@ -4,7 +4,8 @@ serch_key = 'U2NyZWVuc2hvdCAyMDIzLTA3LTI3IDEwMjAzMS5wbmc=';
 
 load("main_server_port.mat");
 load("main_server_ip.mat");
-offset=randi([1000,2^16]);
+number=6;
+offset=nthprime(number);
 
 
 connectionSuccessful = 0;

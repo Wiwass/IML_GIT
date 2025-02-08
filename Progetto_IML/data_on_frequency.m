@@ -8,6 +8,7 @@ for i=1:length(unique_data)
 end
 bar(unique_data,freq1);
 median1=mean(freq1);
+STD1=std(freq1);
 
 clear unique_data;
 clear freq3;
@@ -19,6 +20,7 @@ end
 figure
 bar(unique_data,freq3);
 median3=mean(freq3);
+STD3=std(freq3);
 
 
 clear unique_data;
@@ -31,4 +33,5 @@ end
 figure
 bar(unique_data,freq4);
 median4=mean(freq4);
+STD4=std(freq4);
 

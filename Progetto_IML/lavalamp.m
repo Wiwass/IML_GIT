@@ -6,9 +6,7 @@ function img=lavalamp()
         pause(0.2);
         img2=snapshot(cam);
         img=img-img2;
-        imshow(img);
     else
-        
         S = dir('*.jpg');
         k = randi([1,length(S)]);
         img=imread(S(k).name);
