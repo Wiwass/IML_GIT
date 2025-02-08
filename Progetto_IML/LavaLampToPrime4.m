@@ -1,11 +1,10 @@
-function prime=LavaLampToPrime4()
+function prime=LavaLampToPrime4(a)
     
     lavalamp_number=5;
     power=16;
-    a = lavalamp();
-    a=im2gray(a);
-    lap = [1 1 1; 1 -8 1; 1 1 1];
-    resp = uint8(filter2(lap, a, 'same'));
+    %a=lavalamp();
+    %a=im2gray(a);
+    resp = a;
     
     sizes=size(resp);
     limit=sizes(2)/lavalamp_number;
@@ -28,16 +27,21 @@ function prime=LavaLampToPrime4()
 
         n=max(max_counter);
         position=find(max_counter==n);
+        position=position(end);
         string_number=append(string_number,int2str(position+1));
         n=8;
     end
 
     prod=str2num(string_number);
-    prod=int16(mod(prod,2^power));
-    if prod<2^(power-1)
-        prod=prod+2^(power-1);
+    prod=mod(prod,6542); %lavorando nel caso 2^16
+    
+    if prod<1000
+        prod=prod+1000;
     end
+    prod=uint16(prod);
     prime=nthprime(prod);
+    
+
 
 
 end

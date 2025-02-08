@@ -20,8 +20,8 @@ if S.Connected
     switch whattodo
         case 0  % key request
 
-            p=LavaLampToPrime2();
-            q=LavaLampToPrime2();
+            p=LavaLampToPrime1();
+            q=LavaLampToPrime1();
 
             
             [n,e,d]=RSA_key_gen(p,q);
@@ -43,8 +43,8 @@ if S.Connected
             ip_length=length(ip);
 
             % prime generation for the data transmission
-            p=LavaLampToPrime2();
-            q=LavaLampToPrime2();
+            p=LavaLampToPrime1();
+            q=LavaLampToPrime1();
 
             %port generation
             load('host.mat');
@@ -54,6 +54,10 @@ if S.Connected
             %% connessione al server di riferimento
 
             connectionSuccessful2 = 0;
+
+            if db_key=='nf'
+                write(S,0,"uint8")
+            end
 
             while connectionSuccessful2 == 0    
                 try
@@ -100,16 +104,31 @@ if S.Connected
 
 
         case 1 % key upload
-            key_length=read(S,1,'uint8');
-            dataread=read(S,key_length,'uint8');
-            key=char(dataread);
+
+            p=LavaLampToPrime1();
+            q=LavaLampToPrime1();
+ 
+            [n,e,d]=RSA_key_gen(p,q);
+            write(S,[n,e],"int32");
+            n=double(n);
+            e=double(e);
+            d=double(d);
             
+            crip_key_length=read(S,1,"uint8");
+            crip_serch_key=read(S,crip_key_length,"uint32");
 
-            port=read(S,1,"uint32");
+            cript_port=read(S,1,"uint32");
 
-            ip_length=read(S,1,'uint8');
-            dataread=read(S,ip_length,'uint8');
-            ip=char(dataread);
+            cript_ip_length=read(S,1,'uint8');
+            cript_ip=read(S,cript_ip_length,'uint8');
+
+            key=RSA_dec(crip_serch_key,d,n);
+            key=char(key);
+
+            ip=RSA_dec(cript_ip,d,n);
+            ip=char(ip);
+
+            port=RSA_dec(cript_port,d,n);
 
             add_key_to_main_DB(key,ip,port);
 

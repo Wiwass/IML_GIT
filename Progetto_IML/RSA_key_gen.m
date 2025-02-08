@@ -1,4 +1,6 @@
 function [n,e,d] = RSA_key_gen(p,q)
+    p=int32(p);
+    q=int32(q);
     n = int32(p*q);
     r = int32((p-1)*(q-1));
     e = int32(2);

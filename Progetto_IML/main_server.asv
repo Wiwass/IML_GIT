@@ -20,37 +20,31 @@ if S.Connected
     switch whattodo
         case 0  % key request
 
-            img=lavalamp();
-            p=DecBinToPrime(img);
+            p=LavaLampToPrime2();
+            q=LavaLampToPrime2();
 
-            img=lavalamp();
-            q=DecBinToPrime(img);
-
-            n=int32(0);
-            e=int32(0);
-            d=int32(0);
-            int32([n,e,d])=RSA_key_gen(p,q);
-
+            
+            [n,e,d]=RSA_key_gen(p,q);
             write(S,[n,e],"int32");
+            n=double(n);
+            e=double(e);
+            d=double(d);
             
             crip_key_length=read(S,1,"uint8");
-            dataread=read(S,crip_key_length,"uint32");
+            crip_serch_key=read(S,crip_key_length,"uint32");
             crip_offset=read(S,1,"int32");
 
             offset=RSA_dec(crip_offset,d,n);
-            crip_serch_key=char(dataread);
             serch_key=RSA_dec(crip_serch_key,d,n);
+            serch_key=char(serch_key);
 
             [db_key,ip,server_port]=serch_key_in_main_DB(serch_key);
 
             ip_length=length(ip);
 
-            % data generation for arp request
-            img=lavalamp();     
-            p=DecBinToPrime(img);
-
-            img=lavalamp();
-            q=DecBinToPrime(img);
+            % prime generation for the data transmission
+            p=LavaLampToPrime2();
+            q=LavaLampToPrime2();
 
             %port generation
             load('host.mat');
@@ -106,16 +100,28 @@ if S.Connected
 
 
         case 1 % key upload
-            key_length=read(S,1,'uint8');
-            dataread=read(S,key_length,'uint8');
-            key=char(dataread);
+
+            p=LavaLampToPrime2();
+            q=LavaLampToPrime2();
+ 
+            [n,e,d]=RSA_key_gen(p,q);
+            write(S,[n,e],"int32");
+            n=double(n);
+            e=double(e);
+            d=double(d);
             
+            crip_key_length=read(S,1,"uint8");
+            crip_serch_key=read(S,crip_key_length,"uint32");
 
-            port=read(S,1,"uint32");
-
+            
+            
+            cripport=read(S,1,"uint32");
             ip_length=read(S,1,'uint8');
             dataread=read(S,ip_length,'uint8');
             ip=char(dataread);
+
+            key=RSA_dec(crip_serch_key,d,n);
+            key=char(key);
 
             add_key_to_main_DB(key,ip,port);
 

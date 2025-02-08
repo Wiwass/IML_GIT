@@ -18,7 +18,7 @@ function return_value=LavaLampToPrime2()
    out=zeros(y,x,8);
    for i=1:1:x
         for j=1:1:y
-            for k=1:1:8
+           for k=1:1:8
             supporto = dec2bin(img(j,i),8)=='1';
             out(j,i,:) = supporto;
             end
