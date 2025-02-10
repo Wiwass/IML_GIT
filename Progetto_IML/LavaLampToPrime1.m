@@ -23,7 +23,7 @@ function prime=LavaLampToPrime1()
         prod=prod*sum;
     end
     
-    prod=mod(prod,360); %limitazioni per colpa di matlab
+    prod=mod(prod,360);
     if prod<180
         prod=prod+180;
     end
