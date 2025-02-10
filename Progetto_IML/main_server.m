@@ -1,125 +1,139 @@
 clear all
 disp('Server ready, waiting for connections...')
-load("main_server_port.mat");
-load("main_server_ip.mat");
-S = tcpserver(main_server_ip, main_server_port);
-S.ByteOrder = 'little-endian';
+load("main_server_port.mat");  % Load the server port number
+load("main_server_ip.mat");    % Load the server IP address
+S = tcpserver(main_server_ip, main_server_port);  % Create a TCP server
+S.ByteOrder = 'little-endian';  % Set byte order
 
-S.ConnectionChangedFcn = @server_function;
-
-
+S.ConnectionChangedFcn = @server_function;  % Set the connection change callback function
 
 function server_function(S,~)
+    if S.Connected
+        % Connection established
+        disp(['Connected with Client with IP: ', S.ClientAddress, ...
+              ' at port number ', num2str(S.ClientPort)]);
+        
+        whattodo = read(S, 1, 'uint8');  % Read the command from the client
+        switch whattodo
+            case 0  % Key request
+                p = LavaLampToPrime1();
+                q = LavaLampToPrime1();
 
-if S.Connected
-    % disp('Connection OK!');
-    disp(['Connected with Client with IP: ',S.ClientAddress,...
-        ' at port number ',num2str(S.ClientPort)]);
-    
-    n=read(S,1,'uint8');
-    switch n
-        case 0  % key request
-            
-            key_length=read(S,1,"uint8");
-            dataread=read(S,key_length,"uint8");
-            serch_key=char(dataread);
-            [db_key,ip,server_port]=serch_key_in_main_DB(serch_key);
+                while p == q
+                    q = LavaLampToPrime1();
+                end
 
-            
-            
-            
-            ip_length=length(ip);
-
-            % data generation for arp request
-            img=lavalamp();     
-            p=DecBinToPrime(img);
-
-            img=lavalamp();
-            q=DecBinToPrime(img);
-            
-            e=3;
-
-            %port generation
-            load('host.mat');
-            port=49152+mod(host*p*q,16383);
-            save('host.mat','host');
-
-            %% connessione al server di riferimento
-
-            connectionSuccessful2 = 0;
-
-            while connectionSuccessful2 == 0    
-                try
-                    C = tcpclient(ip,server_port);
-                    C.ByteOrder = 'little-endian';
-                    connectionSuccessful2 = 1;
-                    % If connection to server fails, the instructions following "catch
-                    % ME" are executed
-                catch ME    
+                [n, e, d] = RSA_key_gen(p, q);  % Generate RSA keys
+                write(S, [n, e], "int32");  % Send public keys to the client
+                n = double(n);
+                e = double(e);
+                d = double(d);
                 
-                    if strcmp(ME.identifier, 'MATLAB:networklib:tcpclient:cannotCreateObject')
-                        connectionSuccessful2 = 1;
-                        disp('wait: server not ready yet')
+                crip_key_length = read(S, 1, "uint8");
+                crip_serch_key = read(S, crip_key_length, "uint32");
+                crip_offset = read(S, 1, "int32");
+
+                offset = RSA_dec(crip_offset, d, n);  % Decrypt the offset
+                serch_key = RSA_dec(crip_serch_key, d, n);  % Decrypt the search key
+                serch_key = char(serch_key);
+
+                [db_key, ip, server_port] = serch_key_in_main_DB(serch_key);  % Search the key in the main database
+
+                ip_length = length(ip);
+
+                % Prime generation for data transmission
+                p = LavaLampToPrime1();
+                q = LavaLampToPrime1();
+
+                while p == q
+                    q = LavaLampToPrime1();
+                end
+
+                % Port generation
+                load('host.mat');
+                port = 49152 + mod(host * p * q, 16383);
+                save('host.mat', 'host');
+
+                % Connection to the reference server
+                connectionSuccessful2 = 0;
+
+                if size(char(db_key)) == size(char('nf'))
+                    if char(db_key) == char('nf')
+                        write(S, 0, "uint8");
                     end
                 end
-            end
 
-            if connectionSuccessful2==0
-                write(S,0,'uint8');
-                return
-            else
-                write(S,1,'uint8');
-            end
+                while connectionSuccessful2 == 0    
+                    try
+                        C = tcpclient(ip, server_port);
+                        C.ByteOrder = 'little-endian';
+                        connectionSuccessful2 = 1;
+                    catch ME    
+                        if strcmp(ME.identifier, 'MATLAB:networklib:tcpclient:cannotCreateObject')
+                            connectionSuccessful2 = 1;
+                            disp('wait: server not ready yet')
+                        end
+                    end
+                end
 
-            scale=4;
-            %sending port number to the second server
-            write(C,port,'int32');
-            write(C,length(db_key),'int8');
-            write(C,uint8(double(db_key)));
-            write(C,scale,'uint8');
-            write(C,p,'int32');
-            write(C,q,'int32');
-            write(C,e,'uint8');
+                if connectionSuccessful2 == 0
+                    write(S, 0, 'uint8');
+                    return
+                else
+                    write(S, 1, 'uint8');
+                end
 
-            %%
+                scale = 4;
+                % Sending port number to the second server
+                write(C, port, 'int32');
+                write(C, length(db_key), 'int8');
+                write(C, uint8(double(db_key)));
+                write(C, scale, 'uint8');
+                write(C, p * offset, 'int32');
+                write(C, q * offset, 'int32');
 
-            %data transmission to the client
-            write(S,p,'int32');
-            write(S,q,'int32');
-            write(S,e,'uint8');
-            write(S,ip_length,'uint8');
-            write(S,ip);
-            write(S,port,'uint32');
+                % Data transmission to the client
+                write(S, p, 'int32');
+                write(S, q, 'int32');
+                write(S, ip_length, 'uint8');
+                write(S, ip);
+                write(S, port, 'uint32');
 
-            disp("done");
+                disp("done");
 
+            case 1  % Key upload
+                p = LavaLampToPrime1();
+                q = LavaLampToPrime1();
 
-        case 1 % key upload
-            key_length=read(S,1,'uint8');
-            dataread=read(S,key_length,'uint8');
-            key=char(dataread);
-            
+                [n, e, d] = RSA_key_gen(p, q);  % Generate RSA keys
+                write(S, [n, e], "int32");  % Send public keys to the client
+                n = double(n);
+                e = double(e);
+                d = double(d);
+                
+                crip_key_length = read(S, 1, "uint8");
+                crip_serch_key = read(S, crip_key_length, "uint32");
 
-            port=read(S,1,"uint32");
+                cript_port = read(S, 1, "uint32");
 
-            ip_length=read(S,1,'uint8');
-            dataread=read(S,ip_length,'uint8');
-            ip=char(dataread);
+                cript_ip_length = read(S, 1, 'uint8');
+                cript_ip = read(S, cript_ip_length, 'uint32');
 
-            add_key_to_main_DB(key,ip,port);
+                key = RSA_dec(crip_serch_key, d, n);  % Decrypt the search key
+                key = char(key);
 
-            disp('Key uploaded');
-            write(S,1,'uint8');
+                ip = RSA_dec(cript_ip, d, n);  % Decrypt the IP address
+                ip = char(ip);
 
+                port = RSA_dec(cript_port, d, n);  % Decrypt the port number
+
+                add_key_to_main_DB(key, ip, port);  % Add the key to the main database
+
+                disp('Key uploaded');
+                write(S, 1, 'uint8');  % Confirm the key upload
+
+        end
+    else
+        disp('Client disconnected')
     end
-            
-
-
-           
-    
-else
-    disp('Client disconnected')
-end
-
-
 end
